@@ -9,37 +9,6 @@ $NETSECURITY_ENABLED_FALSE = "False"
     Boiler Plate Code
 #>
 # Checks if the current console has administrator privileges
-function IsAdmin {
- # Returns true/false
-   ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
- }
-
-# Spawns a child PowerShell process with administrator privileges. 
-# The child process is forwarded the current script.
-function SpawnAdminShell {
-    if (-not (IsAdmin)) {
-        $processOptions = @{
-            FilePath = "PowerShell"
-            Verb = "RunAs"
-            ArgumentList = "{0}" -f $PSCommandPath
-        }
-        Start-Process @processOptions
-    }
-}
-
-# If the current shell does not have administrator privileges, a UAC request is sent to open
-# a new child shell with elevated permission. If successful, the parent shell is then killed.
-function Get-AdminPrivileges {
-    if (-not (IsAdmin)) {
-        SpawnAdminShell
-        if (-not $?) {
-            Exit-OnKeyPress "FATAL ERROR: This script requires administrator privileges to run."
-        } else {
-            Exit
-        }
-    }
-}
-
 function Get-SWdfRule {
     Try {
         Get-NetFirewallRule -DisplayName ( "{0}" -f $FIREWALLRULEDISPLAYNAME ) -ErrorAction Stop
