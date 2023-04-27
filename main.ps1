@@ -8,10 +8,8 @@ $STEAM32HKEY = "HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam"
 $STEAMEXE_DISPLAYNAME = "steam.exe"
 $NETSECURITY_ENABLED_TRUE = "True"
 $NETSECURITY_ENABLED_FALSE = "False"
-<#
-    Boiler Plate Code
-#>
-# Checks if the current console has administrator privileges
+$InformationPreference = 'continue'
+
 function Get-SWdfRule {
     Try {
         Get-NetFirewallRule -DisplayName ( "{0}" -f $FIREWALLRULEDISPLAYNAME ) -ErrorAction Stop
@@ -22,8 +20,8 @@ function Get-SWdfRule {
     }
 }
 
-function Is-64Bit {
-    ( Get-WmiObject win32_operatingsystem | Select-Object -ExpandProperty osarchitecture ) -like "64*"
+function Test-Is64Bit {
+    ( Get-CimInstance win32_operatingsystem | Select-Object -ExpandProperty osarchitecture ) -like "64*"
 }
 
 function Get-SteamPath {
@@ -46,7 +44,7 @@ function New-SWdfRule {
     if (-not $isConfirmed) {
         Exit-OnKeyPress "FATAL ERROR: Cannot proceed without Windows Defender Firewall rule."
     } else {
-        $steamKeyPath = If (( Is-64Bit )) {$STEAM64HKEY} Else {$STEAM32HKEY}
+        $steamKeyPath = If (( Test-Is64Bit )) {$STEAM64HKEY} Else {$STEAM32HKEY}
         $steamPath = Get-SteamPath $steamKeyPath
         $params = @{
             DisplayName = "{0}" -f $FIREWALLRULEDISPLAYNAME
@@ -57,7 +55,6 @@ function New-SWdfRule {
             Direction = "Outbound"
             Action = "Block"
             Program = "{0}\{1}" -f $steamPath, $STEAMEXE_DISPLAYNAME
-        
         }
         New-NetFirewallRule @params
     }
@@ -77,20 +74,20 @@ function Set-SWdfRule ($key, $value) {
     }
 }
 
-function Toggle-SWdfRule {
+function Switch-SWdfRule {
     $isEnabled = Get-SWdfRule | Select-Object -ExpandProperty Enabled
     $isEnabled = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {$NETSECURITY_ENABLED_FALSE} Else {$NETSECURITY_ENABLED_TRUE} # Code repeats, make a helper function
     Set-SWdfRule "Enabled" ("{0}" -f $isEnabled)
     $isEnabled
 }
 
-Get-AdminPrivileges
+Get-AdminPrivilege
 # Add check for outdated rule paths
 $rule = Get-SWdfRule
 if (-not $rule) {
     $rule = New-SWdfRule
 }
-$isEnabled = Toggle-SWdfRule
+$isEnabled = Switch-SWdfRule
 $verbage = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {"actively being smothered."} Else {"currently allowed to breathe :)"}
-Write-Host ("Steam is {0}" -f $verbage)
+Write-Information ("Steam is {0}" -f $verbage)
 Exit-OnKeyPress
