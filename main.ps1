@@ -1,4 +1,7 @@
 ﻿#requires -version 5.1
+Import-Module -Name .\CustomUserIO -Function Exit-OnKeyPress
+Import-Module -Name .\ManageShellPrivileges -Function Get-AdminPrivilege
+
 $FIREWALLRULEDISPLAYNAME = "Steam Share"
 $STEAM64HKEY = "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam"
 $STEAM32HKEY = "HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam"
