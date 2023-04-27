@@ -40,21 +40,6 @@ function Get-AdminPrivileges {
     }
 }
 
-function Exit-OnKeyPress ($message) {
-    if ($PSIse) { # Check if running Powershell ISE
-        Add-Type -AssemblyName System.Windows.Forms
-        $psIseWarning = "!!!THIS PROMPT WOULD EXIT ON ANY KEYPRESS FOR CONSOLE!!!"
-        $message = "{0}`n{1}" -f $message, $psIseWarning
-        $null = [System.Windows.Forms.MessageBox]::Show($message)
-    } else {
-        $exitInstructions = "Press any key to exit..."
-        $message = "`n{0}`n{1}" -f $message, $exitInstructions
-        Write-Host $message
-        $null = $host.ui.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    }
-    Exit
-}
-
 function Get-SWdfRule {
     Try {
         Get-NetFirewallRule -DisplayName ( "{0}" -f $FIREWALLRULEDISPLAYNAME ) -ErrorAction Stop
