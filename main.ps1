@@ -1,6 +1,8 @@
 ﻿#requires -version 5.1
-Import-Module -Name .\CustomUserIO -Function Exit-OnKeyPress
-Import-Module -Name .\ManageShellPrivileges -Function Get-AdminPrivilege
+$ErrorActionPreference = "Stop"
+
+Import-Module -Name ($PSScriptRoot + '\modules\CustomUserIO') -Function Exit-OnKeyPress
+Import-Module -Name ($PSScriptRoot + '\modules\ManageShellPrivileges') -Function Start-AsAdministrator, Test-IsAdministrator
 
 $FIREWALLRULEDISPLAYNAME = "Steam Share"
 $STEAM64HKEY = "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam"
@@ -13,10 +15,10 @@ $InformationPreference = 'continue'
 function Get-SWdfRule {
     Try {
         Get-NetFirewallRule -DisplayName ( "{0}" -f $FIREWALLRULEDISPLAYNAME ) -ErrorAction Stop
-    } catch [Microsoft.PowerShell.Cmdletization.Cim.CimJobException] {
+    } catch [System.IO.FileNotFoundException] {
         $false
     } finally {
-    $Error.Clear()
+        $Error.Clear()
     }
 }
 
@@ -81,13 +83,17 @@ function Switch-SWdfRule {
     $isEnabled
 }
 
-Get-AdminPrivilege
-# Add check for outdated rule paths
-$rule = Get-SWdfRule
-if (-not $rule) {
-    $rule = New-SWdfRule
+
+if (-not ( Test-IsAdministrator )) {
+    Start-AsAdministrator $PSCommandPath
+} else {
+    # Add check for outdated rule paths
+    $rule = Get-SWdfRule
+    if (-not $rule) {
+        $rule = New-SWdfRule
+    }
+    $isEnabled = Switch-SWdfRule
+    $verbage = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {"actively being smothered."} Else {"currently allowed to breathe :)"}
+    Write-Information ("Steam is {0}" -f $verbage)
+    Exit-OnKeyPress
 }
-$isEnabled = Switch-SWdfRule
-$verbage = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {"actively being smothered."} Else {"currently allowed to breathe :)"}
-Write-Information ("Steam is {0}" -f $verbage)
-Exit-OnKeyPress
