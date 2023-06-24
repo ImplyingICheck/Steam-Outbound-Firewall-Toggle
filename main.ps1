@@ -1,8 +1,8 @@
 ﻿#requires -version 5.1
 $ErrorActionPreference = "Stop"
 
-Import-Module -Name ($PSScriptRoot + '\modules\CustomUserIO' ) -Function Exit-OnKeyPress
-Import-Module -Name ($PSScriptRoot + '\modules\ManageShellPrivileges' ) -Function Start-AsAdministrator, Test-IsAdministrator
+Import-Module -Name (Join-Path $PSScriptRoot modules | Join-Path -ChildPath CustomUserIO) -Function Exit-OnKeyPress
+Import-Module -Name (Join-Path $PSScriptRoot modules | Join-Path -ChildPath ManageShellPrivileges) -Function Start-AsAdministrator, Test-IsAdministrator
 
 $FIREWALLRULEDISPLAYNAME = "Steam Share"
 $STEAM64HKEY = "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam"

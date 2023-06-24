@@ -1,4 +1,4 @@
-Import-Module -Name ($PSScriptRoot + "\CustomUserIO" ) -Function Exit-OnKeyPress
+Import-Module -Name (Join-Path $PSScriptRoot CustomUserIO) -Function Exit-OnKeyPress
 # TODO: Create module manifest
 
 function Test-IsAdministrator {

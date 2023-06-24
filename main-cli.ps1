@@ -1,7 +1,7 @@
 #requires -version 5.1
 $ErrorActionPreference = "Stop"
 
-. ($PSScriptRoot + "\main.ps1" )
+. (Join-Path $PSScriptRoot main.ps1)
 
 if (-not( Test-IsAdministrator )) {
     Start-AsAdministrator $PSCommandPath
