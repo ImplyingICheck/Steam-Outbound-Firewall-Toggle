@@ -32,36 +32,42 @@ function Exit-OnKeyPress {
 		Exit-OnKeyPress "This is" "<A custom error message>" -NoInstructionBlurb
     #>
     [CmdletBinding()]
-    param (
-		[Parameter(Mandatory=$false)]
+    param ( [Parameter(Mandatory = $false)]
         [String]$Message = "",
-		
-		[Parameter(Mandatory=$false)]
+
+        [Parameter(Mandatory = $false)]
         [String]$EndFormatting = "",
-		
-		[Parameter(Mandatory=$false)]
+
+        [Parameter(Mandatory = $false)]
         [Switch]$NoInstructionBlurb,
-		
-		[Parameter(Mandatory=$false)]
-        [Switch]$NoDefaultFormatting
-    )
+
+        [Parameter(Mandatory = $false)]
+        [Switch]$NoDefaultFormatting )
     begin {
     }
     process {
-		$defaultNewline = if ($NoDefaultFormatting) {""} Else {"`n"}
-		$instructionBlurb = ""
-		if (-not $NoInstructionBlurb) {
-			$instructionBlurb = if ($PSIse) {"!!!PowerShell ISE Notice:!!!`n!!!THIS PROMPT WOULD EXIT ON ANY KEYPRESS FOR CONSOLE!!!"} else {"Press any key to exit..."}
-		}
-		$finalMessage = "{0}{1}{2}{3}" -f $Message, $defaultNewline, $instructionBlurb, $EndFormatting
-		if ($PSIse) {
-			Add-Type -AssemblyName System.Windows.Forms
-			$null = [System.Windows.Forms.MessageBox]::Show($finalMessage)
-		} else {
-			Write-Information $finalMessage
-			$null = $host.ui.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-		}
-		Exit
+        $defaultNewline = if ($NoDefaultFormatting) {
+            ""
+        } Else {
+            "`n"
+        }
+        $instructionBlurb = ""
+        if (-not$NoInstructionBlurb) {
+            $instructionBlurb = if ($PSIse) {
+                "!!!PowerShell ISE Notice:!!!`n!!!THIS PROMPT WOULD EXIT ON ANY KEYPRESS FOR CONSOLE!!!"
+            } else {
+                "Press any key to exit..."
+            }
+        }
+        $finalMessage = "{0}{1}{2}{3}" -f $Message, $defaultNewline, $instructionBlurb, $EndFormatting
+        if ($PSIse) {
+            Add-Type -AssemblyName System.Windows.Forms
+            $null = [System.Windows.Forms.MessageBox]::Show( $finalMessage )
+        } else {
+            Write-Information $finalMessage
+            $null = $host.ui.RawUI.ReadKey( "NoEcho,IncludeKeyDown" )
+        }
+        Exit
     }
     end {
     }
