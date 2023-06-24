@@ -1,4 +1,4 @@
-Import-Module -Name ($PSScriptRoot + "\CustomUserIO" ) -Function Exit-OnKeyPress
+Import-Module -Name (Join-Path $PSScriptRoot CustomUserIO) -Function Exit-OnKeyPress
 # TODO: Create module manifest
 
 function Test-IsAdministrator {
@@ -34,10 +34,11 @@ function New-AdminShell {
     #>
     [CmdletBinding()]
     param ( [Parameter(Mandatory = $true)]
-        [String]$ScriptPath = "" )
+        [String]$ScriptPath)
     begin {
     }
     process {
+        $ScriptPath = $ScriptPath -replace "\s", "`` "
         $params = @{
             FilePath = "PowerShell"
             Verb = "RunAs"
@@ -67,7 +68,7 @@ function Start-AsAdministrator {
     }
     process {
         try {
-            New-AdminShell $ScriptPath
+            New-AdminShell ($ScriptPath)
         } catch {
         # TODO: Add explicit case
             $PSCmdlet.ThrowTerminatingError(

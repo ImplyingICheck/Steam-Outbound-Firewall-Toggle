@@ -1,6 +1,6 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-. ($PSScriptRoot + "\main.ps1" )
+. (Join-Path $PSScriptRoot main.ps1)
 
 $DEFAULTSTYLE = @{
     ForeColor = "White"

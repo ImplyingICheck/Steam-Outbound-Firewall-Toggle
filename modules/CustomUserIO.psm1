@@ -44,6 +44,8 @@ function Exit-OnKeyPress {
         [Parameter(Mandatory = $false)]
         [Switch]$NoDefaultFormatting )
     begin {
+        $tempInformationPreference = $InformationPreference
+        $InformationPreference = 'Continue'
     }
     process {
         $defaultNewline = if ($NoDefaultFormatting) {
@@ -62,14 +64,15 @@ function Exit-OnKeyPress {
         $finalMessage = "{0}{1}{2}{3}" -f $Message, $defaultNewline, $instructionBlurb, $EndFormatting
         if ($PSIse) {
             Add-Type -AssemblyName System.Windows.Forms
-            $null = [System.Windows.Forms.MessageBox]::Show( $finalMessage )
+            [void] [System.Windows.Forms.MessageBox]::Show( $finalMessage )
         } else {
             Write-Information $finalMessage
-            $null = $host.ui.RawUI.ReadKey( "NoEcho,IncludeKeyDown" )
+            [void] $host.ui.RawUI.ReadKey( "NoEcho,IncludeKeyDown" )
         }
-        Exit
     }
     end {
+        $InformationPreference = $tempInformationPreference
+        Exit
     }
 }
 
