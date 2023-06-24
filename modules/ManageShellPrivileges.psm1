@@ -1,8 +1,8 @@
-Import-Module -Name ($PSScriptRoot + "\CustomUserIO") -Function Exit-OnKeyPress
+Import-Module -Name ($PSScriptRoot + "\CustomUserIO" ) -Function Exit-OnKeyPress
 # TODO: Create module manifest
 
 function Test-IsAdministrator {
-	<#
+    <#
     .SYNOPSIS
         Checks if the current console has administrator privileges
     .DESCRIPTION
@@ -15,7 +15,7 @@ function Test-IsAdministrator {
     begin {
     }
     process {
-		([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
+        ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent() ).IsInRole( [Security.Principal.WindowsBuiltInRole]"Administrator" )
     }
     end {
     }
@@ -33,22 +33,20 @@ function New-AdminShell {
         New-AdminShell
     #>
     [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$true)]
-        [String]$ScriptPath = ""
-    )
+    param ( [Parameter(Mandatory = $true)]
+        [String]$ScriptPath = "" )
     begin {
-	}
+    }
     process {
-		$params = @{
-			FilePath = "PowerShell"
-			Verb = "RunAs"
-			ArgumentList = $ScriptPath
-		}
-		Start-Process @params
+        $params = @{
+            FilePath = "PowerShell"
+            Verb = "RunAs"
+            ArgumentList = $ScriptPath
+        }
+        Start-Process @params
     }
     end {
-	}
+    }
 }
 
 function Start-AsAdministrator {
@@ -63,25 +61,18 @@ function Start-AsAdministrator {
         Test-IsAdministrator $PSCommandPath
     #>
     [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$true)]
-        [String]$ScriptPath
-    )
+    param ( [Parameter(Mandatory = $true)]
+        [String]$ScriptPath )
     begin {
     }
     process {
-		try {
-			New-AdminShell $ScriptPath
-		} catch { # TODO: Add explicit case
+        try {
+            New-AdminShell $ScriptPath
+        } catch {
+        # TODO: Add explicit case
             $PSCmdlet.ThrowTerminatingError(
-                [System.Management.Automation.ErrorRecord]::new(
-                    $PSItem.Exception,
-                    'ScriptNotRun',
-                    [System.Management.Automation.ErrorCategory]::PermissionDenied,
-                    $ScriptPath
-                )
-            )
-		}
+                    [System.Management.Automation.ErrorRecord]::new( $PSItem.Exception, 'ScriptNotRun', [System.Management.Automation.ErrorCategory]::PermissionDenied, $ScriptPath ) )
+        }
     }
     end {
     }
