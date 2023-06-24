@@ -15,7 +15,7 @@ $InformationPreference = 'continue'
 function Get-SWdfRule {
     Try {
         Get-NetFirewallRule -DisplayName ( "{0}" -f $FIREWALLRULEDISPLAYNAME ) -ErrorAction Stop
-    } catch [System.IO.FileNotFoundException] {
+    } catch [Microsoft.PowerShell.Cmdletization.Cim.CimJobException] {
         $false
     } finally {
         $Error.Clear()
@@ -77,23 +77,16 @@ function Set-SWdfRule ($key, $value) {
 }
 
 function Switch-SWdfRule {
-    $isEnabled = Get-SWdfRule | Select-Object -ExpandProperty Enabled
-    $isEnabled = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {$NETSECURITY_ENABLED_FALSE} Else {$NETSECURITY_ENABLED_TRUE} # Code repeats, make a helper function
-    Set-SWdfRule "Enabled" ("{0}" -f $isEnabled)
-    $isEnabled
+    if ( Test-SWdfRuleIsEnabled ) {
+        $flippedValue = $NETSECURITY_ENABLED_FALSE
+    } Else {
+        $flippedValue = $NETSECURITY_ENABLED_TRUE
+    } # Code repeats, make a helper function
+    Set-SWdfRule "Enabled" ("{0}" -f $flippedValue)
+    Test-SWdfRuleIsEnabled
 }
 
-
-if (-not ( Test-IsAdministrator )) {
-    Start-AsAdministrator $PSCommandPath
-} else {
-    # Add check for outdated rule paths
-    $rule = Get-SWdfRule
-    if (-not $rule) {
-        $rule = New-SWdfRule
-    }
-    $isEnabled = Switch-SWdfRule
-    $verbage = if ( $isEnabled -eq $NETSECURITY_ENABLED_TRUE ) {"actively being smothered."} Else {"currently allowed to breathe :)"}
-    Write-Information ("Steam is {0}" -f $verbage)
-    Exit-OnKeyPress
+function Test-SWdfRuleIsEnabled {
+    $isEnabled = Get-SWdfRule | Select-Object -ExpandProperty Enabled
+    [bool]::Parse($isEnabled)
 }
