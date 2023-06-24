@@ -1,8 +1,6 @@
 #requires -version 5.1
 $ErrorActionPreference = "Stop"
 
-Write-Host $PSScriptRoot
-
 . ($PSScriptRoot + "\main.ps1" )
 
 if (-not( Test-IsAdministrator )) {
